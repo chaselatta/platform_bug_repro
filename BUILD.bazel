@@ -1,0 +1,88 @@
+load(":defs.bzl", "color_toolchain", "print_color")
+
+constraint_setting(name = "color")
+
+constraint_value(
+    name = "red",
+    constraint_setting = ":color",
+)
+
+constraint_value(
+    name = "blue",
+    constraint_setting = ":color",
+)
+
+platform(
+    name = "red_platform",
+    constraint_values = [
+        ":red",
+    ],
+)
+
+platform(
+    name = "blue_platform",
+    constraint_values = [
+        ":blue",
+    ],
+)
+
+toolchain_type(name = "toolchain_type")
+
+color_toolchain(
+    name = "red_color_toolchain",
+    color = "red",
+)
+
+color_toolchain(
+    name = "blue_color_toolchain",
+    color = "blue",
+)
+
+toolchain(
+    name = "red_toolchain",
+    target_compatible_with = [
+        ":red",
+    ],
+    toolchain = ":red_color_toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+toolchain(
+    name = "blue_toolchain",
+    target_compatible_with = [
+        ":blue",
+    ],
+    toolchain = ":blue_color_toolchain",
+    toolchain_type = ":toolchain_type",
+)
+
+# bazel build :print_color_red_first # prints red
+print_color(
+    name = "print_color_red_first",
+    rule_supplied_platforms = [
+        ":red_platform",
+        ":blue_platform",
+    ]
+)
+
+# bazel build :print_color_blue_first # prints blue
+print_color(
+    name = "print_color_blue_first",
+    rule_supplied_platforms = [
+        ":blue_platform",
+        ":red_platform",
+    ]
+)
+
+# Build with the following commands
+# 1) bazel build :print_color # fails as expected
+# 2) bazel build :print_color --platforms=:blue_platform  # prints blue
+# 3) bazel build :print_color --platforms=:red_platform  # prints red
+# 4) bazel build :print_color  --platforms=:blue_platform --platforms=:red_platform # prints red
+# 5) bazel build :print_color  --platforms=:red_platform --platforms=:blue_platform # prints blue
+print_color(
+    name = "print_color",
+    rule_supplied_platforms = [],
+)
+
+

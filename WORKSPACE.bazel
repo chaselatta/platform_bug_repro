@@ -1,0 +1,4 @@
+register_toolchains(
+    ":red_toolchain",
+    ":blue_toolchain",
+)
